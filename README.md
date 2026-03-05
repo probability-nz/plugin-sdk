@@ -17,6 +17,46 @@ npm run dev
 
 **Start your own plugin:** copy `examples/debug` as a starting point and edit [`src/main.tsx`](./examples/debug/src/main.tsx).
 
+## Architecture
+
+```mermaid
+flowchart TD
+    subgraph Browser
+        Hash["URL #hash (JSON)"]
+        HS["useHashStore()"]
+        Hash --> HS
+    end
+
+    subgraph SDK ["@probability-nz/plugin-sdk/react"]
+        RP["RepoProvider\nsync={['wss://...']}"]
+        Repo["Repo\n(automerge-repo)"]
+        WS["WebSocketClientAdapter"]
+        RP --> Repo
+        Repo --> WS
+
+        UD["useDoc(docUrl, schema?)"]
+        Handle["DocHandle"]
+        Pres["Presence"]
+        Repo --> Handle
+        Handle --> UD
+        Handle --> Pres
+        Pres --> UD
+    end
+
+    subgraph Result ["useDoc result"]
+        Loading["{ status: 'loading' }"]
+        Ready["{ status: 'ready'\n  doc, handle, changeDoc\n  presence, setPresence, peers }"]
+        Err["{ status: 'error', error }"]
+    end
+
+    HS -- "context.sync" --> RP
+    HS -- "context.doc" --> UD
+    WS <-- "WebSocket" --> Sync["Sync Server\nwss://sync.probability.nz"]
+    UD --> Loading
+    UD --> Ready
+    UD --> Err
+```
+
 ## What's in the SDK
 
 ### Exports
