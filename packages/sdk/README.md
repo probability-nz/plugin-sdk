@@ -2,7 +2,18 @@
 
 [probability.nz](https://probability.nz) is a freeform platform for playing tabletop & board games online. Players can move pieces, draw cards, and roll dice with no rules enforced, like a physical table.
 
-Plugins add automation on top. A plugin can read and modify the game, and can do anything a player could do. Each plugin connects to a shared [automerge](https://automerge.org/) document (JSON object) that syncs between players. This SDK lets you build them with React.
+This is the SDK for making plugins for probability. Plugins are external tools that can do anything a player could do, like moving pieces or drawing cards. They can also create new pieces or help you organize decks. Think of them as a robotic GM or a helpful assistant that just loves shuffling your cards for you.
+
+Each plugin connects to a shared "document" (a big blob of JSON) that syncs between players. This is the permanent store of all moves and changes in a game. 
+[We call 'em "Doc".]
+
+For "short-lived" messages, like who's pointing at what, we use "presence".
+
+Plugins are web apps launched with a specially-crafted url:
+```
+https://example.com/myplugin#{ doc:"automerge:123456789", sync:[ 'wss://sync.probability.nz' ], delegation: "BASE64STRING"}
+```
+This url contains the ID of the `doc`, which `sync` servers have a copy of it, and an encrypted `delegation` string for access control (keyhive beelay).
 
 ## Quick start
 
