@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, type ReactNode } from 'react';
+import { type ReactNode, useContext, useEffect, useRef } from 'react';
 import { Repo, RepoContext, WebSocketClientAdapter } from '@automerge/react';
 
 export interface RepoProviderProps {
@@ -29,10 +29,12 @@ export function RepoProvider({ sync = [], children }: RepoProviderProps) {
   // Handle sync prop changes
   useEffect(() => {
     const repo = repoRef.current;
-    if (!repo) return;
+    if (!repo) {
+      return;
+    }
 
     const desired = new Set(dedupe(sync));
-    const current = adaptersRef.current;
+    const { current } = adaptersRef;
 
     // Add new adapters first (prevents sync gap)
     for (const url of desired) {
@@ -54,10 +56,12 @@ export function RepoProvider({ sync = [], children }: RepoProviderProps) {
 
   // Shutdown on unmount
   useEffect(() => {
+    const repo = repoRef.current;
+    const adapters = adaptersRef.current;
     return () => {
-      repoRef.current?.shutdown();
+      repo?.shutdown();
       repoRef.current = null;
-      adaptersRef.current.clear();
+      adapters.clear();
     };
   }, []);
 

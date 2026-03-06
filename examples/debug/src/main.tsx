@@ -1,8 +1,9 @@
-import { StrictMode, Suspense, Component, type ReactNode } from 'react';
+import { toColor, useHashStore } from '@probability-nz/plugin-sdk';
+import { RepoProvider, useEphemeralState, useProbDocument } from '@probability-nz/plugin-sdk/react';
+import { Component, type ReactNode, StrictMode, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
-import { useHashStore, toColor } from '@probability-nz/plugin-sdk';
-import { RepoProvider, useProbDocument, useEphemeralState } from '@probability-nz/plugin-sdk/react';
-import type { AutomergeUrl } from '@probability-nz/plugin-sdk/types';
+import type { AutomergeUrl } from '@probability-nz/plugin-types';
+import type { AnyDocumentId } from '@automerge/react';
 
 // --- Error boundary ---
 
@@ -10,7 +11,10 @@ class ErrorBoundary extends Component<
   { children: ReactNode },
   { error: Error | null }
 > {
-  state: { error: Error | null } = { error: null };
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { error: null };
+  }
 
   static getDerivedStateFromError(error: Error) {
     return { error };
@@ -32,8 +36,9 @@ class ErrorBoundary extends Component<
 // --- Plugin ---
 
 function Plugin({ doc: docUrl }: { doc: AutomergeUrl }) {
-  const [doc, changeDoc] = useProbDocument<{ count?: number }>(docUrl, { suspense: true });
-  const { state, setState, peers } = useEphemeralState(docUrl);
+  const docId = docUrl as unknown as AnyDocumentId;
+  const [doc, changeDoc] = useProbDocument<{ count?: number }>(docId, { suspense: true });
+  const { state, setState, peers } = useEphemeralState(docId);
 
   return (
     <div style={{ padding: 24, fontFamily: 'monospace' }}>
@@ -82,7 +87,7 @@ function Plugin({ doc: docUrl }: { doc: AutomergeUrl }) {
 
 function App() {
   const hash = useHashStore();
-  const context = hash.context;
+  const { context } = hash;
 
   if (!context?.doc || !context?.sync?.length) {
     return (

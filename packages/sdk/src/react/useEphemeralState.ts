@@ -1,7 +1,7 @@
+import { type AnyDocumentId, useDocHandle, usePresence } from '@automerge/react';
 import { useCallback, useMemo, useRef } from 'react';
-import { useDocHandle, usePresence, type AnyDocumentId } from '@automerge/react';
-import type { CursorOp, PutOp, MoveOp } from '../types';
-import { getPresenceValidator, formatErrors } from '../validation';
+import type { CursorOp, MoveOp, PutOp } from '@probability-nz/plugin-types';
+import { formatErrors, getPresenceValidator } from '../validation';
 
 export interface PresenceState {
   cursor?: CursorOp;
@@ -11,7 +11,7 @@ export interface PresenceState {
 export interface PeerPresence {
   state: PresenceState;
   lastActiveAt: number;
-  lastUpdateAt: number;
+  lastSeenAt: number;
 }
 
 /**
@@ -49,11 +49,10 @@ export function useEphemeralState(docUrl: AnyDocumentId) {
 
   const peers = useMemo(() => {
     const result: Record<string, PeerPresence> = {};
-    const cache = validPeerCache.current;
+    const { current: cache } = validPeerCache;
     const validator = getPresenceValidator();
 
-    for (const peer of peerStates.peers) {
-      const id = String(peer.peerId);
+    for (const [id, peer] of Object.entries(peerStates.getStates())) {
       const validation = validator.validate(peer.value);
 
       if (validation.valid) {
@@ -61,14 +60,14 @@ export function useEphemeralState(docUrl: AnyDocumentId) {
         result[id] = {
           state: peer.value,
           lastActiveAt: peer.lastActiveAt,
-          lastUpdateAt: peer.lastUpdateAt,
+          lastSeenAt: peer.lastSeenAt,
         };
       } else if (cache[id]) {
         console.warn(`Invalid presence from peer ${id}, using last valid state`);
         result[id] = {
           state: cache[id],
           lastActiveAt: peer.lastActiveAt,
-          lastUpdateAt: peer.lastUpdateAt,
+          lastSeenAt: peer.lastSeenAt,
         };
       }
       // If no valid state ever received, peer is omitted

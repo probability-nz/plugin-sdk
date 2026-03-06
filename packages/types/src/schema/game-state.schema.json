@@ -26,8 +26,8 @@
     },
     "Face": {
       "type": "object",
-      "required": ["name", "rotation"],
       "additionalProperties": false,
+      "required": ["name", "rotation"],
       "properties": {
         "name": { "type": "string" },
         "rotation": { "$ref": "#/$defs/Vector3Tuple" }
@@ -75,8 +75,8 @@
     },
     "Scenario": {
       "type": "object",
+      "additionalProperties": false,
       "required": ["children"],
-      "additionalProperties": true,
       "properties": {
         "name": { "type": "string" },
         "children": {
@@ -97,8 +97,8 @@
     },
     "CursorOp": {
       "type": "object",
-      "required": ["action", "path"],
       "additionalProperties": false,
+      "required": ["action", "path"],
       "properties": {
         "action": { "const": "focus" },
         "path": { "$ref": "#/$defs/AnchoredPath" }
@@ -106,18 +106,19 @@
     },
     "PutOp": {
       "type": "object",
+      "additionalProperties": false,
       "required": ["action", "path", "value"],
-      "additionalProperties": true,
       "properties": {
         "action": { "const": "put" },
         "path": { "$ref": "#/$defs/AnchoredPath" },
-        "value": {}
+        "value": {},
+        "conflict": { "type": "boolean" }
       }
     },
     "MoveOp": {
       "type": "object",
-      "required": ["action", "path", "to"],
       "additionalProperties": false,
+      "required": ["action", "path", "to"],
       "properties": {
         "action": { "const": "move" },
         "path": { "$ref": "#/$defs/AnchoredPath" },

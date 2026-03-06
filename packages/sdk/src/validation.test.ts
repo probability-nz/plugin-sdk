@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getDocValidator, getPresenceValidator, formatErrors } from './validation';
+import { formatErrors, getDocValidator, getPresenceValidator } from './validation';
 
 describe('getDocValidator', () => {
   it('returns a cached singleton', () => {

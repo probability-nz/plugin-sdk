@@ -1,5 +1,5 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const { mockUseAutomergeDocument } = vi.hoisted(() => ({
   mockUseAutomergeDocument: vi.fn(),
@@ -111,7 +111,8 @@ describe('useProbDocument', () => {
     // Mock that simulates automerge: fn throws → transaction discarded
     const throwingChangeDoc = vi.fn((fn: (d: Record<string, unknown>) => void) => {
       const draft: Record<string, unknown> = {};
-      fn(draft); // This should throw
+      // This should throw
+      fn(draft);
     });
     mockUseAutomergeDocument.mockReturnValue([currentDoc, throwingChangeDoc]);
 

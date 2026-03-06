@@ -1,0 +1,52 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "promise"],
+  "overrides": [
+    {
+      "files": ["**/*.test.ts", "**/*.test.tsx"],
+      "rules": {
+        "promise/prefer-await-to-then": "off"
+      }
+    }
+  ],
+  "categories": {
+    "correctness": "error",
+    "pedantic": "warn",
+    "perf": "warn",
+    "style": "warn",
+    "suspicious": "error"
+  },
+  "rules": {
+    "func-style": "off",
+    "id-length": "off",
+    "init-declarations": "off",
+    "max-lines": "off",
+    "max-lines-per-function": "off",
+    "max-params": "off",
+    "max-statements": "off",
+    "new-cap": [
+      "warn",
+      {
+        "capIsNewExceptions": [
+          "DELETE",
+          "GET",
+          "HEAD",
+          "OPTIONS",
+          "PATCH",
+          "POST",
+          "PUT"
+        ]
+      }
+    ],
+    "no-magic-numbers": "off",
+    "no-ternary": "off",
+    "no-warning-comments": "off",
+    "sort-imports": ["warn", { "ignoreDeclarationSort": true }],
+    "sort-keys": "off",
+    "react/iframe-missing-sandbox": "off",
+    "react/jsx-max-depth": "off",
+    "react/jsx-props-no-spreading": "off",
+    "react/no-unescaped-entities": "off",
+    "react/react-in-jsx-scope": "off"
+  }
+}

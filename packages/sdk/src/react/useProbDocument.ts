@@ -1,7 +1,7 @@
+import type { ChangeFn, ChangeOptions, Doc } from '@automerge/automerge';
+import { type AnyDocumentId, useDocument as useAutomergeDocument } from '@automerge/react';
 import { useCallback } from 'react';
-import { useDocument as useAutomergeDocument, type AnyDocumentId } from '@automerge/react';
-import type { Doc, ChangeFn, ChangeOptions } from '@automerge/automerge';
-import { getDocValidator, formatErrors } from '../validation';
+import { formatErrors, getDocValidator } from '../validation';
 
 type ChangeDocFn<T> = (changeFn: ChangeFn<T>, options?: ChangeOptions<T>) => void;
 
@@ -24,7 +24,9 @@ export function useProbDocument<T>(
       rawChangeDoc((d) => {
         fn(d);
         const result = getDocValidator().validate(d);
-        if (!result.valid) throw new Error(formatErrors(result.errors));
+        if (!result.valid) {
+          throw new Error(formatErrors(result.errors));
+        }
       }, options);
     },
     [rawChangeDoc],

@@ -1,0 +1,21 @@
+{
+  "name": "@probability-nz/plugin-types",
+  "version": "0.0.1",
+  "type": "module",
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./src/index.ts"
+    },
+    "./schema": "./src/schema/game-state.schema.json"
+  },
+  "files": ["dist", "src"],
+  "scripts": {
+    "build": "tsc",
+    "lint": "oxlint -c ../../.oxlintrc.json && tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

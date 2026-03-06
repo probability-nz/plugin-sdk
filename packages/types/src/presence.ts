@@ -1,6 +1,8 @@
-import type { ObjID, Prop, PutPatch } from '@automerge/automerge';
+/** Automerge object ID (e.g. `"2@abc123"`) */
+export type ObjID = string;
 
-export type { ObjID, Prop } from '@automerge/automerge';
+/** Automerge property key */
+export type Prop = string | number;
 
 /**
  * A path anchored to a specific Automerge object
@@ -14,9 +16,12 @@ export interface CursorOp {
   path: AnchoredPath;
 }
 
-/** Anchored version of automerge's {@link PutPatch} */
-export interface PutOp extends Omit<PutPatch, 'path'> {
+/** Anchored version of automerge's PutPatch */
+export interface PutOp {
+  action: 'put';
   path: AnchoredPath;
+  value: string | number | boolean | null | Date | Uint8Array;
+  conflict?: boolean;
 }
 
 /** Move — no automerge equivalent yet (planned feature) */

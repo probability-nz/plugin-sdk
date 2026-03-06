@@ -1,7 +1,7 @@
-import type { HashState } from './types';
 import { create } from 'zustand';
+import type { HashState } from '@probability-nz/plugin-types';
 
-export type { HashContext, HashState, JsonValue } from './types';
+export type { HashContext, HashState, JsonValue } from '@probability-nz/plugin-types';
 
 const parseHash = (): Partial<HashState> => {
   const raw = location.hash.slice(1);

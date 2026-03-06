@@ -1,5 +1,5 @@
-import { Validator, type Schema, type OutputUnit } from '@cfworker/json-schema';
-import rawSchema from './schema/game-state-v1.json';
+import { type OutputUnit, type Schema, Validator } from '@cfworker/json-schema';
+import rawSchema from '@probability-nz/plugin-types/schema';
 
 // Cast needed because JSON import widens literal types (e.g. "object" → string)
 const schema = rawSchema as unknown as Schema & { $defs: Record<string, Schema> };

@@ -1,6 +1,5 @@
-import type { AutomergeUrl } from '@automerge/react';
-
-export type { AutomergeUrl } from '@automerge/react';
+/** Branded string type for automerge document URLs (e.g. `automerge:abc123`) */
+export type AutomergeUrl = `automerge:${string}`;
 
 /** JSON-compatible value (replacement for type-fest's JsonValue) */
 export type JsonValue =

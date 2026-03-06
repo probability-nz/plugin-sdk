@@ -1,10 +1,10 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => {
   const state = {
     localState: undefined as Record<string, unknown> | undefined,
-    peerStates: { peers: [] as Array<Record<string, unknown>> },
+    peerStatesValue: {} as Record<string, Record<string, unknown>>,
   };
   const update = vi.fn();
   return {
@@ -12,7 +12,7 @@ const mocks = vi.hoisted(() => {
     update,
     useDocHandle: vi.fn(),
     usePresence: vi.fn(() => ({
-      peerStates: state.peerStates,
+      peerStates: { getStates: () => state.peerStatesValue },
       localState: state.localState,
       update,
     })),
@@ -32,7 +32,7 @@ describe('useEphemeralState', () => {
   beforeEach(() => {
     mocks.useDocHandle.mockReturnValue(mockHandle);
     mocks.state.localState = undefined;
-    mocks.state.peerStates = { peers: [] };
+    mocks.state.peerStatesValue = {};
     mocks.update.mockClear();
     mocks.usePresence.mockClear();
   });
@@ -136,21 +136,19 @@ describe('useEphemeralState', () => {
 
   describe('peers', () => {
     it('returns empty peers when none connected', () => {
-      mocks.state.peerStates = { peers: [] };
+      mocks.state.peerStatesValue = {};
       const { result } = renderHook(() => useEphemeralState('automerge:abc' as any));
       expect(result.current.peers).toEqual({});
     });
 
     it('includes valid peers', () => {
-      mocks.state.peerStates = {
-        peers: [
-          {
-            peerId: 'peer-1',
-            value: { cursor: { action: 'focus', path: ['1@abc'] } },
-            lastActiveAt: 1000,
-            lastUpdateAt: 2000,
-          },
-        ],
+      mocks.state.peerStatesValue = {
+        'peer-1': {
+          peerId: 'peer-1',
+          value: { cursor: { action: 'focus', path: ['1@abc'] } },
+          lastActiveAt: 1000,
+          lastSeenAt: 2000,
+        },
       };
 
       const { result } = renderHook(() => useEphemeralState('automerge:abc' as any));
@@ -158,20 +156,18 @@ describe('useEphemeralState', () => {
       expect(result.current.peers['peer-1']).toEqual({
         state: { cursor: { action: 'focus', path: ['1@abc'] } },
         lastActiveAt: 1000,
-        lastUpdateAt: 2000,
+        lastSeenAt: 2000,
       });
     });
 
     it('omits peers with no valid state ever', () => {
-      mocks.state.peerStates = {
-        peers: [
-          {
-            peerId: 'bad-peer',
-            value: { garbage: 'data' },
-            lastActiveAt: 1000,
-            lastUpdateAt: 2000,
-          },
-        ],
+      mocks.state.peerStatesValue = {
+        'bad-peer': {
+          peerId: 'bad-peer',
+          value: { garbage: 'data' },
+          lastActiveAt: 1000,
+          lastSeenAt: 2000,
+        },
       };
 
       const { result } = renderHook(() => useEphemeralState('automerge:abc' as any));
@@ -180,15 +176,13 @@ describe('useEphemeralState', () => {
 
     it('uses last valid state for peers that send invalid data', () => {
       // First render: valid state
-      mocks.state.peerStates = {
-        peers: [
-          {
-            peerId: 'peer-1',
-            value: { cursor: { action: 'focus', path: ['1@abc'] } },
-            lastActiveAt: 1000,
-            lastUpdateAt: 2000,
-          },
-        ],
+      mocks.state.peerStatesValue = {
+        'peer-1': {
+          peerId: 'peer-1',
+          value: { cursor: { action: 'focus', path: ['1@abc'] } },
+          lastActiveAt: 1000,
+          lastSeenAt: 2000,
+        },
       };
 
       const { result, rerender } = renderHook(() => useEphemeralState('automerge:abc' as any));
@@ -197,15 +191,13 @@ describe('useEphemeralState', () => {
       });
 
       // Second render: invalid state — should fall back to cached
-      mocks.state.peerStates = {
-        peers: [
-          {
-            peerId: 'peer-1',
-            value: { invalid: true },
-            lastActiveAt: 1000,
-            lastUpdateAt: 3000,
-          },
-        ],
+      mocks.state.peerStatesValue = {
+        'peer-1': {
+          peerId: 'peer-1',
+          value: { invalid: true },
+          lastActiveAt: 1000,
+          lastSeenAt: 3000,
+        },
       };
 
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -214,28 +206,26 @@ describe('useEphemeralState', () => {
       expect(result.current.peers['peer-1'].state).toEqual({
         cursor: { action: 'focus', path: ['1@abc'] },
       });
-      expect(result.current.peers['peer-1'].lastUpdateAt).toBe(3000);
+      expect(result.current.peers['peer-1'].lastSeenAt).toBe(3000);
       expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Invalid presence from peer'));
 
       warnSpy.mockRestore();
     });
 
     it('handles multiple peers', () => {
-      mocks.state.peerStates = {
-        peers: [
-          {
-            peerId: 'peer-1',
-            value: { cursor: { action: 'focus', path: ['1@abc'] } },
-            lastActiveAt: 1000,
-            lastUpdateAt: 2000,
-          },
-          {
-            peerId: 'peer-2',
-            value: { op: { action: 'move', path: ['2@def'], to: ['3@ghi'] } },
-            lastActiveAt: 1500,
-            lastUpdateAt: 2500,
-          },
-        ],
+      mocks.state.peerStatesValue = {
+        'peer-1': {
+          peerId: 'peer-1',
+          value: { cursor: { action: 'focus', path: ['1@abc'] } },
+          lastActiveAt: 1000,
+          lastSeenAt: 2000,
+        },
+        'peer-2': {
+          peerId: 'peer-2',
+          value: { op: { action: 'move', path: ['2@def'], to: ['3@ghi'] } },
+          lastActiveAt: 1500,
+          lastSeenAt: 2500,
+        },
       };
 
       const { result } = renderHook(() => useEphemeralState('automerge:abc' as any));
@@ -246,15 +236,13 @@ describe('useEphemeralState', () => {
     });
 
     it('accepts peers with empty presence', () => {
-      mocks.state.peerStates = {
-        peers: [
-          {
-            peerId: 'idle-peer',
-            value: {},
-            lastActiveAt: 1000,
-            lastUpdateAt: 2000,
-          },
-        ],
+      mocks.state.peerStatesValue = {
+        'idle-peer': {
+          peerId: 'idle-peer',
+          value: {},
+          lastActiveAt: 1000,
+          lastSeenAt: 2000,
+        },
       };
 
       const { result } = renderHook(() => useEphemeralState('automerge:abc' as any));
