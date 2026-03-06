@@ -1,34 +1,12 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useRef,
-  type ReactNode,
-} from 'react';
-import { Repo } from '@automerge/automerge-repo';
-import { WebSocketClientAdapter } from '@automerge/automerge-repo-network-websocket';
-import { SDKError } from '../errors';
-
-const RepoContext = createContext<Repo | null>(null);
-
-export const useRepo = (): Repo => {
-  const repo = useContext(RepoContext);
-  if (!repo) {
-    throw new Error('useRepo must be used within a <RepoProvider>');
-  }
-  return repo;
-};
+import { useContext, useEffect, useRef, type ReactNode } from 'react';
+import { Repo, RepoContext, WebSocketClientAdapter } from '@automerge/react';
 
 export interface RepoProviderProps {
-  sync: string[];
+  sync?: string[];
   children: ReactNode;
 }
 
-export function RepoProvider({ sync, children }: RepoProviderProps) {
-  if (sync.length === 0) {
-    throw new SDKError('MISSING_SYNC', 'RepoProvider requires at least one sync URL');
-  }
-
+export function RepoProvider({ sync = [], children }: RepoProviderProps) {
   // Warn on nesting (always call hook to satisfy rules of hooks)
   const parent = useContext(RepoContext);
   if (parent) {
@@ -84,9 +62,9 @@ export function RepoProvider({ sync, children }: RepoProviderProps) {
   }, []);
 
   return (
-    <RepoContext value={repoRef.current}>
+    <RepoContext.Provider value={repoRef.current}>
       {children}
-    </RepoContext>
+    </RepoContext.Provider>
   );
 }
 

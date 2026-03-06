@@ -25,7 +25,7 @@ test('shows error boundary for invalid automerge URL', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Error' })).toBeVisible();
 });
 
-test('full path: hash → RepoProvider → useDoc → UI', async ({ page }) => {
+test('full path: hash → RepoProvider → useProbDocument → UI', async ({ page }) => {
   test.setTimeout(30_000);
 
   const hash = encodeURIComponent(

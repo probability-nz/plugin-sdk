@@ -1,3 +1,3 @@
-export { useHashStore, type HashContext, type HashState, type JsonValue } from './hashStore';
-export { SDKError, type SDKErrorCode } from './errors';
+export { useHashStore } from './hashStore';
+export type { HashContext, HashState, JsonValue } from './types';
 export { toColor, type HexColor } from './color';

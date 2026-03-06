@@ -1,4 +1,4 @@
-import type { AutomergeUrl } from '@automerge/automerge-repo';
+import type { AutomergeUrl } from './types';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { useHashStore } from './hashStore';
 

@@ -8,10 +8,9 @@
   },
   "dependencies": {
     "@automerge/automerge": "^3.2.3",
-    "@automerge/automerge-repo": "2.5.2-alpha.1",
+    "@automerge/react": "2.5.2-alpha.1",
     "@probability-nz/plugin-sdk": "workspace:*",
     "react": "^19.2.4",
-    "zod": "^3.25.67",
     "react-dom": "^19.2.4"
   },
   "devDependencies": {

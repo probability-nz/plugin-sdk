@@ -1,26 +1,16 @@
 import { StrictMode, Suspense, Component, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { useHashStore, toColor, type SDKError } from '@probability-nz/plugin-sdk';
-import { RepoProvider, useSuspenseDoc } from '@probability-nz/plugin-sdk/react';
-import { z } from 'zod';
-
-// --- Presence schema ---
-
-const CursorSchema = z.object({
-  x: z.number(),
-  y: z.number(),
-  color: z.string(),
-});
-
-type Cursor = z.infer<typeof CursorSchema>;
+import { useHashStore, toColor } from '@probability-nz/plugin-sdk';
+import { RepoProvider, useProbDocument, useEphemeralState } from '@probability-nz/plugin-sdk/react';
+import type { AutomergeUrl } from '@probability-nz/plugin-sdk/types';
 
 // --- Error boundary ---
 
 class ErrorBoundary extends Component<
   { children: ReactNode },
-  { error: SDKError | Error | null }
+  { error: Error | null }
 > {
-  state: { error: SDKError | Error | null } = { error: null };
+  state: { error: Error | null } = { error: null };
 
   static getDerivedStateFromError(error: Error) {
     return { error };
@@ -28,11 +18,10 @@ class ErrorBoundary extends Component<
 
   render() {
     if (this.state.error) {
-      const err = this.state.error;
       return (
         <div style={{ padding: 24, color: '#e55' }}>
           <h2>Error</h2>
-          <pre>{'code' in err ? (err as SDKError).code : err.name}: {err.message}</pre>
+          <pre>{this.state.error.message}</pre>
         </div>
       );
     }
@@ -40,19 +29,11 @@ class ErrorBoundary extends Component<
   }
 }
 
-// --- Loading fallback ---
-
-function LoadingFallback() {
-  return <p>Connecting...</p>;
-}
-
 // --- Plugin ---
 
-function Plugin({ doc: docUrl }: { doc: string }) {
-  const { doc, changeDoc, presence, setPresence, peers } = useSuspenseDoc<
-    { count?: number },
-    Cursor
-  >(docUrl, CursorSchema);
+function Plugin({ doc: docUrl }: { doc: AutomergeUrl }) {
+  const [doc, changeDoc] = useProbDocument<{ count?: number }>(docUrl, { suspense: true });
+  const { state, setState, peers } = useEphemeralState(docUrl);
 
   return (
     <div style={{ padding: 24, fontFamily: 'monospace' }}>
@@ -68,13 +49,14 @@ function Plugin({ doc: docUrl }: { doc: string }) {
 
       <section>
         <h3>Presence</h3>
-        <p>Local: {JSON.stringify(presence)}</p>
+        <p>Local: {JSON.stringify(state)}</p>
         <button
           onClick={() =>
-            setPresence({
-              x: Math.round(Math.random() * 100),
-              y: Math.round(Math.random() * 100),
-              color: toColor(String(Date.now())),
+            setState({
+              cursor: {
+                action: 'focus',
+                path: [toColor(String(Date.now()))],
+              },
             })
           }
         >
@@ -86,7 +68,7 @@ function Plugin({ doc: docUrl }: { doc: string }) {
         <h3>Peers ({Object.keys(peers).length})</h3>
         <ul>
           {Object.entries(peers).map(([id, peer]) => (
-            <li key={id} style={{ color: peer.state?.color ?? '#888' }}>
+            <li key={id}>
               {id}: {JSON.stringify(peer.state)} (active {new Date(peer.lastActiveAt).toLocaleTimeString()})
             </li>
           ))}
@@ -114,7 +96,7 @@ function App() {
   return (
     <ErrorBoundary>
       <RepoProvider sync={context.sync}>
-        <Suspense fallback={<LoadingFallback />}>
+        <Suspense fallback={<p>Connecting...</p>}>
           <Plugin doc={context.doc} />
         </Suspense>
       </RepoProvider>

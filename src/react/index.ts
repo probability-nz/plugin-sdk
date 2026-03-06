@@ -1,3 +1,3 @@
-export { RepoProvider, useRepo, type RepoProviderProps } from './RepoProvider';
-export { useDoc, type UseDocResult, type PeerInfo } from './useDoc';
-export { useSuspenseDoc, type UseSuspenseDocResult } from './useSuspenseDoc';
+export { RepoProvider, type RepoProviderProps } from './RepoProvider';
+export { useProbDocument } from './useProbDocument';
+export { useEphemeralState, type PresenceState, type PeerPresence } from './useEphemeralState';

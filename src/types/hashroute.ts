@@ -1,0 +1,35 @@
+import type { AutomergeUrl } from '@automerge/react';
+
+export type { AutomergeUrl } from '@automerge/react';
+
+/** JSON-compatible value (replacement for type-fest's JsonValue) */
+export type JsonValue =
+  | string
+  | number
+  | boolean
+  | null
+  | JsonValue[]
+  | { [key: string]: JsonValue };
+
+/** Connection context passed to plugins via the URL hash */
+export interface HashContext {
+  /** Automerge document URL */
+  doc: AutomergeUrl;
+  /** Sync server WebSocket URLs */
+  sync: string[];
+  /** Opaque identity — used for presence grouping */
+  identity?: string;
+  [key: string]: JsonValue | undefined;
+}
+
+/**
+ * JSON state stored in the URL hash fragment
+ * Contains a {@link HashContext} plus arbitrary plugin-specific state
+ */
+export interface HashState {
+  context: HashContext;
+  [key: string]: JsonValue | HashContext | undefined;
+}
+
+/** Plugin URL: `<address>#<JSON-encoded HashState>` */
+export type PluginUrl = `${string}#${string}`;
