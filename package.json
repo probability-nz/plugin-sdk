@@ -6,7 +6,8 @@
     "build": "turbo build",
     "lint": "turbo lint",
     "test": "turbo test",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "clean": "rm -rf packages/*/dist examples/*/dist node_modules/.cache .turbo"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",

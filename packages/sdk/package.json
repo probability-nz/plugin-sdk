@@ -1,8 +1,16 @@
 {
   "name": "@probability-nz/plugin-sdk",
   "version": "0.0.1",
+  "description": "SDK for building probability.nz plugins",
   "type": "module",
   "license": "MIT",
+  "author": "Garbo Succus",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/probability-nz/plugin-sdk",
+    "directory": "packages/sdk"
+  },
+  "homepage": "https://github.com/probability-nz/plugin-sdk#readme",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
