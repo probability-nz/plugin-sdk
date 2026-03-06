@@ -1,7 +1,7 @@
 export type SDKErrorCode =
   | 'MISSING_SYNC'
   | 'INVALID_DOC_URL'
-  | 'CONNECTION_FAILED'
+  | 'DOC_UNAVAILABLE'
   | 'DOC_DELETED';
 
 export class SDKError extends Error {

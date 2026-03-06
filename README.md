@@ -21,40 +21,41 @@ npm run dev
 
 ```mermaid
 flowchart TD
-    subgraph Browser
-        Hash["URL #hash (JSON)"]
-        HS["useHashStore()"]
-        Hash --> HS
+    subgraph prob ["probability.nz"]
+        A["Player clicks Play"]
+        A -- "Opens plugin in new window" --> B["Plugin loaded"]
     end
 
-    subgraph SDK ["@probability-nz/plugin-sdk/react"]
-        RP["RepoProvider\nsync={['wss://...']}"]
-        Repo["Repo\n(automerge-repo)"]
-        WS["WebSocketClientAdapter"]
-        RP --> Repo
-        Repo --> WS
+    B --> C{"URL has<br/>doc + sync?"}
+    C -- "No" --> Err
 
-        UD["useDoc(docUrl, schema?)"]
-        Handle["DocHandle"]
-        Pres["Presence"]
-        Repo --> Handle
-        Handle --> UD
-        Handle --> Pres
-        Pres --> UD
+    C -- "Yes" --> D["Connecting..."]
+
+    D -- "Connected" --> E["Loading document..."]
+    D -- "Server unreachable<br/>(~1s timeout)" --> Err
+
+    E -- "Not found or<br/>doc deleted" --> Err
+    E -- "Loaded" --> Ready
+
+    subgraph Ready ["Your plugin code runs here"]
+        direction LR
+        R1["Read and display<br/>game state"]
+        R2["Players edit<br/>shared state"]
+        R3["See each other's<br/>cursors and actions"]
+        R1 --- R2 --- R3
     end
 
-    subgraph Result ["useDoc result"]
-        Loading["{ status: 'loading' }"]
-        Ready["{ status: 'ready'\n  doc, handle, changeDoc\n  presence, setPresence, peers }"]
-        Err["{ status: 'error', error }"]
+    Ready -- "Real-time sync" --> Peers["Other players<br/>see changes instantly"]
+    Peers -- "Their changes" --> Ready
+
+    subgraph Err ["Error screen"]
+        ErrMsg["MISSING_SYNC · INVALID_DOC_URL<br/>DOC_UNAVAILABLE · DOC_DELETED"]
     end
 
-    HS -- "context.sync" --> RP
-    HS -- "context.doc" --> UD
-    WS <-- "WebSocket" --> Sync["Sync Server\nwss://sync.probability.nz"]
-    UD --> Loading
-    UD --> Ready
-    UD --> Err
+    style prob fill:#f0f0ff,stroke:#99a
+    style Ready fill:#e8f5e9,stroke:#4a7
+    style Err fill:#fce4ec,stroke:#c55
+    style Peers fill:#e3f2fd,stroke:#59d
 ```
 
 ## What's in the SDK
@@ -117,9 +118,9 @@ https://plugin.example.com/#{"context":{"doc":"automerge:...","sync":["wss://...
 | Error | Source | Description |
 |---|---|---|
 | `MISSING_SYNC` | RepoProvider | `sync` prop empty or missing |
-| `CONNECTION_FAILED` | RepoProvider | WebSocket connection failed |
-| `INVALID_DOC_URL` | useDoc | Not a valid automerge URL |
-| `DOC_DELETED` | useDoc | Document was deleted on sync server |
+| `INVALID_DOC_URL` | useDoc | Not a valid `automerge:` URL |
+| `DOC_UNAVAILABLE` | useDoc | Document not found — sync server unreachable or doc doesn't exist |
+| `DOC_DELETED` | useDoc | Document was deleted |
 
 ### Presence
 

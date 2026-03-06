@@ -223,7 +223,7 @@ export function useDoc<T = Record<string, unknown>, P = unknown>(
   if (snapshot.handleState === 'unavailable') {
     return {
       status: 'error',
-      error: new SDKError('INVALID_DOC_URL', 'Document not found'),
+      error: new SDKError('DOC_UNAVAILABLE', 'Document not found — sync server may be unreachable or document does not exist'),
     };
   }
 

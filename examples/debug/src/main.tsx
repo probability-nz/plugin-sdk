@@ -104,12 +104,9 @@ function App() {
 
   if (!context?.doc || !context?.sync?.length) {
     return (
-      <div style={{ padding: 24, fontFamily: 'monospace' }}>
-        <h2>Debug Plugin</h2>
-        <p>
-          No context found in URL hash. Expected format:
-        </p>
-        <pre>{`#${JSON.stringify({ context: { doc: 'automerge:...', sync: ['wss://...'] } })}`}</pre>
+      <div style={{ padding: 24, color: '#e55' }}>
+        <h2>Error</h2>
+        <pre>No context found in URL hash. Expected format:{'\n'}{`#${JSON.stringify({ context: { doc: 'automerge:...', sync: ['wss://...'] } })}`}</pre>
       </div>
     );
   }

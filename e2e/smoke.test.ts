@@ -1,12 +1,14 @@
 import { test, expect } from '@playwright/test';
 
-test('shows no-context message without hash', async ({ page }) => {
+test('shows error without hash', async ({ page }) => {
   await page.goto('http://localhost:5199/');
+  await expect(page.getByRole('heading', { name: 'Error' })).toBeVisible();
   await expect(page.locator('text=No context found')).toBeVisible();
 });
 
-test('shows no-context message with invalid hash', async ({ page }) => {
+test('shows error with invalid hash', async ({ page }) => {
   await page.goto('http://localhost:5199/#garbage');
+  await expect(page.getByRole('heading', { name: 'Error' })).toBeVisible();
   await expect(page.locator('text=No context found')).toBeVisible();
 });
 
