@@ -16,8 +16,11 @@ export interface HashContext {
   doc: AutomergeUrl;
   /** Sync server WebSocket URLs */
   sync: string[];
-  /** Opaque identity — used for presence grouping */
-  identity?: string;
+  /**
+   * @experimental Will be a base64url-encoded KeyHive/Beelay Ed25519
+   * Signed<Delegation>. Currently ignored — all values fail validation.
+   */
+  delegation?: string;
   [key: string]: JsonValue | undefined;
 }
 

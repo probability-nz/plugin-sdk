@@ -71,20 +71,19 @@ describe('hashStore', () => {
     expect(state.context?.sync).toEqual(['wss://a.com']);
   });
 
-  it('round-trips identity through URL hash', () => {
-    // identity is an opaque string — could be a base64url Ed25519 pubkey,
-    // a KeyHive delegation token, or any future format
-    const identity = 'dGVzdC1lZDI1NTE5LXB1YmtleS0zMi1ieXRlcw'; // base64url
+  it('round-trips delegation through URL hash', () => {
+    // Opaque base64url-encoded KeyHive Signed<Delegation>
+    const delegation = 'dGVzdC1lZDI1NTE5LXB1YmtleS0zMi1ieXRlcw'; // base64url
     setHash({
       context: {
         doc: 'automerge:abc123',
         sync: ['wss://sync.example.com'],
-        identity,
+        delegation,
       },
     });
     window.dispatchEvent(new HashChangeEvent('hashchange'));
     const state = useHashStore.getState();
-    expect(state.context?.identity).toBe(identity);
+    expect(state.context?.delegation).toBe(delegation);
   });
 
   it('round-trips through URL hash', () => {
