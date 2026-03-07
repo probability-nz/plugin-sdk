@@ -1,4 +1,4 @@
-import { toColor, useHashStore } from '@probability-nz/plugin-sdk';
+import { useHashStore } from '@probability-nz/plugin-sdk';
 import { RepoProvider, useEphemeralState, useProbDocument } from '@probability-nz/plugin-sdk/react';
 import { Component, type ReactNode, StrictMode, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -60,7 +60,7 @@ function Plugin({ doc: docUrl }: { doc: AutomergeUrl }) {
             setState({
               cursor: {
                 action: 'focus',
-                path: [toColor(String(Date.now()))],
+                path: [`${Date.now()}@debug`],
               },
             })
           }

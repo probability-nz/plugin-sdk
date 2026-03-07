@@ -1,4 +1,4 @@
-import { type ReactNode, useContext, useEffect, useRef } from 'react';
+import { type ReactNode, useContext, useEffect, useMemo, useRef } from 'react';
 import { Repo, RepoContext, WebSocketClientAdapter } from '@automerge/react';
 
 export interface RepoProviderProps {
@@ -15,10 +15,11 @@ export function RepoProvider({ sync = [], children }: RepoProviderProps) {
 
   const repoRef = useRef<Repo | null>(null);
   const adaptersRef = useRef<Map<string, WebSocketClientAdapter>>(new Map());
+  const syncUrls = useMemo(() => dedupe(sync), [sync]);
 
   // Create repo on first render
   if (!repoRef.current) {
-    const adapters = dedupe(sync).map((url) => {
+    const adapters = syncUrls.map((url) => {
       const adapter = new WebSocketClientAdapter(url);
       adaptersRef.current.set(url, adapter);
       return adapter;
@@ -33,7 +34,7 @@ export function RepoProvider({ sync = [], children }: RepoProviderProps) {
       return;
     }
 
-    const desired = new Set(dedupe(sync));
+    const desired = new Set(syncUrls);
     const { current } = adaptersRef;
 
     // Add new adapters first (prevents sync gap)
@@ -52,7 +53,7 @@ export function RepoProvider({ sync = [], children }: RepoProviderProps) {
         current.delete(url);
       }
     }
-  }, [sync]);
+  }, [syncUrls]);
 
   // Shutdown on unmount
   useEffect(() => {
@@ -61,6 +62,9 @@ export function RepoProvider({ sync = [], children }: RepoProviderProps) {
     return () => {
       repo?.shutdown();
       repoRef.current = null;
+      for (const adapter of adapters.values()) {
+        adapter.disconnect();
+      }
       adapters.clear();
     };
   }, []);

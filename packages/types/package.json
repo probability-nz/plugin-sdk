@@ -16,14 +16,18 @@
       "types": "./dist/index.d.ts",
       "default": "./src/index.ts"
     },
-    "./schema": "./src/schema/game-state.schema.json"
+    "./schema": "./dist/schema.json"
   },
-  "files": ["dist", "src"],
+  "files": [
+    "dist",
+    "src"
+  ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node scripts/generate-schema.mjs",
     "lint": "oxlint -c ../../.oxlintrc.json && tsc --noEmit"
   },
   "devDependencies": {
+    "ts-json-schema-generator": "^2.9.0",
     "typescript": "^5.9.3"
   }
 }

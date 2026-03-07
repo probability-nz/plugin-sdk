@@ -73,7 +73,7 @@ describe('hashStore', () => {
 
   it('round-trips delegation through URL hash', () => {
     // Opaque base64url-encoded KeyHive Signed<Delegation>
-    const delegation = 'dGVzdC1lZDI1NTE5LXB1YmtleS0zMi1ieXRlcw'; // base64url
+    const delegation = 'dGVzdC1lZDI1NTE5LXB1YmtleS0zMi1ieXRlcw';
     setHash({
       context: {
         doc: 'automerge:abc123',

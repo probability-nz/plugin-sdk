@@ -15,5 +15,6 @@ export type {
   ObjID,
   Prop,
   PresenceOp,
+  PresenceState,
   PutOp,
 } from './presence';

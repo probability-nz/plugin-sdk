@@ -1,3 +1,5 @@
+import type { JsonValue } from './hashroute';
+
 /** Automerge object ID (e.g. `"2@abc123"`) */
 export type ObjID = string;
 
@@ -20,7 +22,7 @@ export interface CursorOp {
 export interface PutOp {
   action: 'put';
   path: AnchoredPath;
-  value: string | number | boolean | null | Date | Uint8Array;
+  value: JsonValue;
   conflict?: boolean;
 }
 
@@ -33,3 +35,9 @@ export interface MoveOp {
 
 /** Presence operation broadcast between peers */
 export type PresenceOp = CursorOp | PutOp | MoveOp;
+
+/** Presence state broadcast between peers */
+export interface PresenceState {
+  cursor?: CursorOp;
+  op?: PutOp | MoveOp;
+}
