@@ -4,6 +4,8 @@
 
 This is the SDK for making plugins for Probability. Plugins are external tools that can do anything a player could do, like an assistant that moves pieces or shuffles cards for you. They can also create and organise decks and pieces like a GM. 
 
+Plugins are different to widgets, which physically exist inside 3D game world.
+
 ## Quick start
 
 ```sh
@@ -28,7 +30,8 @@ This url contains the ID of the automerge `doc`, which `sync` servers to use, an
 ```mermaid
 flowchart TD
     subgraph prob ["Probability app"]
-        B["Plugin launched in new tab/iframe"]
+        A["Plugin launched in new tab/iframe"]
+        A --> B["https://example.com/myplugin#&lbrace;#quot;doc#quot;:…,#quot;sync#quot;:…,#quot;delegation#quot;:…&rbrace;"]
     end
 
     B --> C{"URL has<br/>doc + sync?"}
