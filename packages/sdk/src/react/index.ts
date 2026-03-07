@@ -1,3 +1,3 @@
 export { RepoProvider, type RepoProviderProps } from './RepoProvider';
 export { useProbDocument } from './useProbDocument';
-export { useEphemeralState, type PresenceState, type PeerPresence } from './useEphemeralState';
+export { usePresenceState, type PresenceState, type PeerPresence } from './usePresenceState';

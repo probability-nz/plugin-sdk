@@ -15,10 +15,10 @@ export interface PeerPresence {
 }
 
 /**
- * Typed ephemeral state API wrapping automerge's channel-based presence.
+ * Typed presence state API wrapping automerge's channel-based presence.
  * The presence schema is closed — only `cursor` and `op` channels are allowed.
  */
-export function useEphemeralState(docUrl: AnyDocumentId) {
+export function usePresenceState(docUrl: AnyDocumentId) {
   const handle = useDocHandle(docUrl, { suspense: true });
 
   const { peerStates, localState, update } = usePresence<PresenceState>({

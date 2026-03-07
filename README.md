@@ -1,10 +1,6 @@
 # @probability-nz/plugin-sdk
 
-[probability.nz](https://probability.nz) is a freeform platform for playing tabletop & board games online. Players can move pieces, draw cards, and roll dice with no rules enforced, like a physical table.
-
-This is the SDK for making plugins for Probability. Plugins are external tools that can do anything a player could do, like an assistant that moves pieces or shuffles cards for you. They can also create and organise decks and pieces like a GM. 
-
-Plugins are different to widgets, which physically exist inside 3D game world.
+[Probability](https://probability.nz) is a freeform 3D platform for tabletop & board games. Plugins are external tools that can help with gameplay, act as an opponet, manage decks, etc.
 
 ## Quick start
 
@@ -17,53 +13,76 @@ pnpm dev
 
 Edit [`src/main.tsx`](./examples/debug/src/main.tsx) to build your plugin.
 
+## How it works
+
+The game is kept in an [automerge](https://automerge.org/) `document` (a big blob of shared JSON).
+
+When a player drags a piece, we send out temporary data called `presence`, which shows their intended move to everyone. Once they drop the piece, we update the doc, confirming their move and adding it to the permanant game history.
+
+Pieces are nested on each other. For example, a token, sitting on a card, sitting on a game board looks like:
+```json
+{
+  "type": "board",
+  "children": [
+    {
+      "type": "card",
+      "children": [
+        {
+          "type": "token",
+          "children": []
+        }
+      ]
+    }
+  ]
+}
+```
+
 ## Lifecycle
 
-Plugins are web apps launched with a specific url:
+Plugins are web apps launched with a specific URL:
 
 ```
-https://example.com/myplugin#{ "doc": "automerge:123456789", "sync": [ "wss://sync.probability.nz" ], "delegation": "encryptedBase64String" }
+https://example.com/myplugin#{
+  "doc": "automerge:123456789",
+  "sync": [ "wss://sync.probability.nz" ],
+  "delegation": "encryptedBase64String"
+}
 ```
 
-This url contains the ID of the automerge `doc`, which `sync` servers to use, and an encrypted `delegation` string which says who launched the plugin and what it's allowed to do.
+The JSON data after the `#` contains:
+* The ID of the automerge `doc`
+* Which `sync` servers to use
+* An encrypted `delegation` string, describing who launched the plugin and what it's allowed to do
 
 ```mermaid
 flowchart TD
     subgraph prob ["Probability app"]
-        A["Plugin launched in new tab/iframe"]
-        A --> B["https://example.com/myplugin#&lbrace;#quot;doc#quot;:…,#quot;sync#quot;:…,#quot;delegation#quot;:…&rbrace;"]
+        A["Launch plugin in new tab/iframe"]
     end
 
-    B --> C{"URL has<br/>doc + sync?"}
+    A -- "<pre>https://example.com/plugin#&lbrace;#quot;doc#quot;:…,#quot;sync#quot;:…,#quot;delegation#quot;:…&rbrace;</pre>" --> C{"URL has doc + sync?"}
     C -- "No" --> Err
-
-    C -- "Yes" --> D["Connecting..."]
-
-    D -- "Connected" --> E["Loading document..."]
-    D -- "Server unreachable" --> Err
-
-    E -- "Not found" --> Wait["Waiting for peers..."]
-    Wait -- "Peer with copy<br/>connects" --> Ready
+    C -- "Yes" --> E["Wait for server/peers to share doc (sync server may not have a copy yet)"]
     E -- "Loaded" --> Ready
+    E -- "60s timeout" --> Err
 
     subgraph Ready ["Your plugin code runs here"]
-        direction LR
-        R1["Read and display<br/>game state"]
-        R2["Players edit<br/>shared state"]
-        R3["See each other's<br/>cursors and actions"]
-        R1 --- R2 --- R3
+        R1["Read/write <code>doc</code> (shared game state)"]
+        R2["Read peer <code>presence</code> states (eg other players' intended moves)"]
+        R3["Write local <code>presence</code> state"]
+        
     end
 
-    Ready -- "Real-time sync" --> Peers["Other players<br/>see changes instantly"]
+    Ready -- "Real-time sync" --> Peers["Peers see changes instantly"]
     Peers -- "Their changes" --> Ready
 
-    subgraph Err ["Error boundary"]
-        ErrMsg["Automerge errors caught<br/>by React error boundary"]
+    subgraph Err ["Error"]
+        ErrMsg["Caught by React error boundary"]
     end
 
+    style Ready fill:#d4edda4d,stroke:#28a745
+    style Err fill:#f8d7da4d,stroke:#dc3545
 ```
-
-> **How document loading works:** If the sync server already has a copy of the document, it loads instantly. If it doesn't, the plugin will keep waiting until another peer who has a copy connects to the same server and shares it. If no one connects within 60 seconds, it will give up and throw an error.
 
 ## Usage
 
@@ -91,10 +110,9 @@ function MyPlugin({ docUrl }: { docUrl: AutomergeUrl }) {
 
 ### Hooks
 
-Each plugin connects to an [automerge](https://automerge.org/) `document` (a big blob of JSON). This is the permanent store of all moves and changes in a game, and is shared between players. 
 - **`useProbDocument(id, { suspense: true })`** — returns `[doc, changeDoc]`. Validates writes against the game state schema. Requires `suspense: true`, else it will throw an error.
 
-`useEphemeralState` is for sharing short-lived data, like selections, or showing where someone wants to move a piece.
-- **`useEphemeralState(docUrl)`** — typed presence API. Returns `{ state, setState, peers }`. Two channels: `cursor` (focus/attention) and `op` (uncommitted mutation preview).
+`usePresenceState` is for sharing short-lived data, like selections, or showing where someone wants to move a piece.
+- **`usePresenceState(docUrl)`** — typed presence API. Returns `{ state, setState, peers }`. Two channels: `cursor` (focus/attention) and `op` (uncommitted mutation preview).
 
 `useHashStore` is an optional replacement for react setState,  for non-shared state. The difference is that it's saved to the plugin URL, so that reloading the page or copying the URL will restore the plugin to that particular state.

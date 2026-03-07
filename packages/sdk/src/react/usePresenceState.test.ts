@@ -24,9 +24,9 @@ vi.mock('@automerge/react', () => ({
   usePresence: mocks.usePresence,
 }));
 
-import { useEphemeralState } from './useEphemeralState';
+import { usePresenceState } from './usePresenceState';
 
-describe('useEphemeralState', () => {
+describe('usePresenceState', () => {
   const mockHandle = { url: 'automerge:abc' };
 
   beforeEach(() => {
@@ -38,12 +38,12 @@ describe('useEphemeralState', () => {
   });
 
   it('resolves handle with suspense', () => {
-    renderHook(() => useEphemeralState('automerge:abc' as any));
+    renderHook(() => usePresenceState('automerge:abc' as any));
     expect(mocks.useDocHandle).toHaveBeenCalledWith('automerge:abc', { suspense: true });
   });
 
   it('passes handle and initialState to usePresence', () => {
-    renderHook(() => useEphemeralState('automerge:abc' as any));
+    renderHook(() => usePresenceState('automerge:abc' as any));
     expect(mocks.usePresence).toHaveBeenCalledWith({
       handle: mockHandle,
       initialState: {},
@@ -52,19 +52,19 @@ describe('useEphemeralState', () => {
 
   it('returns empty state when no local state', () => {
     mocks.state.localState = undefined;
-    const { result } = renderHook(() => useEphemeralState('automerge:abc' as any));
+    const { result } = renderHook(() => usePresenceState('automerge:abc' as any));
     expect(result.current.state).toEqual({});
   });
 
   it('returns local state from automerge presence', () => {
     mocks.state.localState = { cursor: { action: 'focus', path: ['1@abc', 'children', 0] } };
-    const { result } = renderHook(() => useEphemeralState('automerge:abc' as any));
+    const { result } = renderHook(() => usePresenceState('automerge:abc' as any));
     expect(result.current.state).toEqual(mocks.state.localState);
   });
 
   describe('setState', () => {
     it('calls update per channel for valid cursor op', () => {
-      const { result } = renderHook(() => useEphemeralState('automerge:abc' as any));
+      const { result } = renderHook(() => usePresenceState('automerge:abc' as any));
 
       act(() => {
         result.current.setState({
@@ -79,7 +79,7 @@ describe('useEphemeralState', () => {
     });
 
     it('calls update per channel for valid move op', () => {
-      const { result } = renderHook(() => useEphemeralState('automerge:abc' as any));
+      const { result } = renderHook(() => usePresenceState('automerge:abc' as any));
 
       act(() => {
         result.current.setState({
@@ -95,7 +95,7 @@ describe('useEphemeralState', () => {
     });
 
     it('calls update for both channels when both provided', () => {
-      const { result } = renderHook(() => useEphemeralState('automerge:abc' as any));
+      const { result } = renderHook(() => usePresenceState('automerge:abc' as any));
 
       act(() => {
         result.current.setState({
@@ -110,7 +110,7 @@ describe('useEphemeralState', () => {
     });
 
     it('throws on invalid presence state', () => {
-      const { result } = renderHook(() => useEphemeralState('automerge:abc' as any));
+      const { result } = renderHook(() => usePresenceState('automerge:abc' as any));
 
       expect(() => {
         act(() => {
@@ -123,7 +123,7 @@ describe('useEphemeralState', () => {
     });
 
     it('throws on invalid cursor op', () => {
-      const { result } = renderHook(() => useEphemeralState('automerge:abc' as any));
+      const { result } = renderHook(() => usePresenceState('automerge:abc' as any));
 
       expect(() => {
         act(() => {
@@ -137,7 +137,7 @@ describe('useEphemeralState', () => {
   describe('peers', () => {
     it('returns empty peers when none connected', () => {
       mocks.state.peerStatesValue = {};
-      const { result } = renderHook(() => useEphemeralState('automerge:abc' as any));
+      const { result } = renderHook(() => usePresenceState('automerge:abc' as any));
       expect(result.current.peers).toEqual({});
     });
 
@@ -151,7 +151,7 @@ describe('useEphemeralState', () => {
         },
       };
 
-      const { result } = renderHook(() => useEphemeralState('automerge:abc' as any));
+      const { result } = renderHook(() => usePresenceState('automerge:abc' as any));
 
       expect(result.current.peers['peer-1']).toEqual({
         state: { cursor: { action: 'focus', path: ['1@abc'] } },
@@ -170,7 +170,7 @@ describe('useEphemeralState', () => {
         },
       };
 
-      const { result } = renderHook(() => useEphemeralState('automerge:abc' as any));
+      const { result } = renderHook(() => usePresenceState('automerge:abc' as any));
       expect(result.current.peers['bad-peer']).toBeUndefined();
     });
 
@@ -185,7 +185,7 @@ describe('useEphemeralState', () => {
         },
       };
 
-      const { result, rerender } = renderHook(() => useEphemeralState('automerge:abc' as any));
+      const { result, rerender } = renderHook(() => usePresenceState('automerge:abc' as any));
       expect(result.current.peers['peer-1'].state).toEqual({
         cursor: { action: 'focus', path: ['1@abc'] },
       });
@@ -228,7 +228,7 @@ describe('useEphemeralState', () => {
         },
       };
 
-      const { result } = renderHook(() => useEphemeralState('automerge:abc' as any));
+      const { result } = renderHook(() => usePresenceState('automerge:abc' as any));
 
       expect(Object.keys(result.current.peers)).toHaveLength(2);
       expect(result.current.peers['peer-1'].state.cursor).toBeDefined();
@@ -245,7 +245,7 @@ describe('useEphemeralState', () => {
         },
       };
 
-      const { result } = renderHook(() => useEphemeralState('automerge:abc' as any));
+      const { result } = renderHook(() => usePresenceState('automerge:abc' as any));
       expect(result.current.peers['idle-peer'].state).toEqual({});
     });
   });

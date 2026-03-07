@@ -1,5 +1,5 @@
 import { useHashStore } from '@probability-nz/plugin-sdk';
-import { RepoProvider, useEphemeralState, useProbDocument } from '@probability-nz/plugin-sdk/react';
+import { RepoProvider, usePresenceState, useProbDocument } from '@probability-nz/plugin-sdk/react';
 import { Component, type ReactNode, StrictMode, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { AutomergeUrl } from '@probability-nz/plugin-types';
@@ -38,7 +38,7 @@ class ErrorBoundary extends Component<
 function Plugin({ doc: docUrl }: { doc: AutomergeUrl }) {
   const docId = docUrl as unknown as AnyDocumentId;
   const [doc, changeDoc] = useProbDocument<{ count?: number }>(docId, { suspense: true });
-  const { state, setState, peers } = useEphemeralState(docId);
+  const { state, setState, peers } = usePresenceState(docId);
 
   return (
     <div style={{ padding: 24, fontFamily: 'monospace' }}>
