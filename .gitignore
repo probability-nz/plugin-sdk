@@ -15,3 +15,4 @@ packages/docs/src/content/docs/types/
 packages/docs/dist/
 packages/docs/.astro/
 .claude/
+.generated/

@@ -1,14 +1,18 @@
 /** Automerge document URL (e.g. `automerge:111111111111111111`) */
 export type AutomergeUrl = `automerge:${string}`;
 
+// Named types so typia emits clean $defs names in the JSON schema.
+interface JsonArray extends Array<JsonValue> {}
+type JsonObject = { [key: string]: JsonValue };
+
 /** JSON-serializable value */
 export type JsonValue =
   | string
   | number
   | boolean
   | null
-  | JsonValue[]
-  | { [key: string]: JsonValue };
+  | JsonArray
+  | JsonObject;
 
 /**
  * Connection context passed to plugins via the URL hash

@@ -60,6 +60,8 @@ export interface GameManifest {
   scenarios: Scenario[];
 }
 
+type __AutomergeMoves = Record<string, string>;
+
 /**
  * The Automerge document shape — a digital analog of the physical game.
  * @group Core
@@ -72,5 +74,6 @@ export interface GameState {
    * Tracks Automerge objectId changes when pieces are reparented.
    * @deprecated Remove when Automerge adds native array move support.
    */
-  __automergeMoves?: Record<string, string>;
+  // Named type so typia emits a clean $defs name in the JSON schema.
+  __automergeMoves?: __AutomergeMoves;
 }
